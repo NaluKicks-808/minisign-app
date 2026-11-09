@@ -188,10 +188,19 @@ export const useAppStore = create<AppState>()((set, get) => {
 
   /** Runs a command against the open document. */
   function onActive<T>(run: (docId: DocumentId, actorId: UserId) => Promise<T>) {
-    return command(() => {
-      if (!activeId) throw new Error('No document is open.');
-      return run(activeId, get().currentUserId);
+    // Captured now: by the time the queue reaches this, the screen may have moved on.
+    const docId = activeId;
+    const actorId = get().currentUserId;
+    return command(async () => {
+      if (!docId) throw new Error('No document is open.');
+      return run(docId, actorId);
     });
+  }
+
+  /** Runs a command as whoever is acting at the moment it was asked for. */
+  function asActor<T>(run: (actorId: UserId) => Promise<T>) {
+    const actorId = get().currentUserId;
+    return command(() => run(actorId));
   }
 
   function unwrap<T>(outcome: Outcome<T>): T {
@@ -315,19 +324,14 @@ export const useAppStore = create<AppState>()((set, get) => {
 
     async createDocument(sourceId) {
       return unwrap(
-        await command(() =>
-          container().documents.createDocument(get().currentUserId, sourceId),
-        ),
+        await asActor((actorId) => container().documents.createDocument(actorId, sourceId)),
       );
     },
 
     async addSourceDocument(source) {
       return unwrap(
-        await command(async () => {
-          const created = await container().documents.addSourceDocument(
-            get().currentUserId,
-            source,
-          );
+        await asActor(async (actorId) => {
+          const created = await container().documents.addSourceDocument(actorId, source);
           await reloadCatalog();
           return created;
         }),
@@ -342,20 +346,18 @@ export const useAppStore = create<AppState>()((set, get) => {
     },
 
     async updateField(fieldId, patch) {
-      await command(() =>
-        container().documents.updateField(get().currentUserId, fieldId, patch),
-      );
+      await asActor((actorId) => container().documents.updateField(actorId, fieldId, patch));
     },
 
     async removeField(fieldId) {
-      const outcome = await command(() =>
-        container().documents.removeField(get().currentUserId, fieldId),
+      const outcome = await asActor((actorId) =>
+        container().documents.removeField(actorId, fieldId),
       );
       if (outcome.ok && get().selectedFieldId === fieldId) set({ selectedFieldId: null });
     },
 
     async setValue(fieldId, value) {
-      await command(() => container().documents.setValue(get().currentUserId, fieldId, value));
+      await asActor((actorId) => container().documents.setValue(actorId, fieldId, value));
     },
 
     async setRecipient(r) {

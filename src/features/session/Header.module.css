@@ -1,0 +1,79 @@
+.header {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--header-h);
+  padding: 0 var(--space-5);
+  background: var(--blotter);
+  color: var(--on-blotter);
+}
+.brand {
+  color: var(--on-blotter);
+  font-size: var(--text-lg);
+  font-weight: var(--weight-bold);
+  letter-spacing: -0.015em;
+  text-decoration: none;
+}
+.tools {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+.switcher {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.actingAs {
+  color: var(--on-blotter-muted);
+  font-size: var(--text-sm);
+}
+.userSelect {
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--blotter-line);
+  border-radius: var(--radius-control);
+  background: var(--blotter-raised);
+  color: var(--on-blotter);
+  font: inherit;
+  font-weight: var(--weight-medium);
+}
+.menu {
+  position: relative;
+}
+.menuButton {
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid var(--blotter-line);
+  border-radius: var(--radius-control);
+  background: none;
+  color: var(--on-blotter);
+  font: inherit;
+  cursor: pointer;
+}
+.menuButton:hover {
+  background: var(--blotter-raised);
+}
+.menuPanel {
+  position: absolute;
+  top: calc(100% + var(--space-1));
+  right: 0;
+  z-index: 30;
+  padding: var(--space-1);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  background: var(--paper);
+  box-shadow: var(--shadow-paper);
+}
+.menuItem {
+  padding: var(--space-2) var(--space-3);
+  border: 0;
+  border-radius: var(--radius-control);
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.menuItem:hover {
+  background: var(--panel);
+}
