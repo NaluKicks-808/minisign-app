@@ -1,14 +1,15 @@
 import { rectCenteredAt, type PointPx } from '../../domain/geometry';
 import type { Field, FieldType } from '../../domain/types';
 
-export const FIELD_TYPES: { type: FieldType; name: string; hint: string; w: number; h: number }[] = [
-  { type: 'text', name: 'Text', hint: 'Aa', w: 0.26, h: 0.028 },
-  { type: 'email', name: 'Email', hint: '@', w: 0.26, h: 0.028 },
-  { type: 'phone', name: 'Phone', hint: '#', w: 0.18, h: 0.028 },
-  { type: 'date', name: 'Date', hint: '31', w: 0.14, h: 0.028 },
-  { type: 'signature', name: 'Signature', hint: '×', w: 0.28, h: 0.055 },
-  { type: 'signerName', name: 'Signer name', hint: 'Ab', w: 0.24, h: 0.028 },
-];
+export const FIELD_TYPES: { type: FieldType; name: string; hint: string; w: number; h: number }[] =
+  [
+    { type: 'text', name: 'Text', hint: 'Aa', w: 0.26, h: 0.028 },
+    { type: 'email', name: 'Email', hint: '@', w: 0.26, h: 0.028 },
+    { type: 'phone', name: 'Phone', hint: '#', w: 0.18, h: 0.028 },
+    { type: 'date', name: 'Date', hint: '31', w: 0.14, h: 0.028 },
+    { type: 'signature', name: 'Signature', hint: '×', w: 0.28, h: 0.055 },
+    { type: 'signerName', name: 'Signer name', hint: 'Ab', w: 0.24, h: 0.028 },
+  ];
 
 export const fieldTypeName = (type: FieldType) =>
   FIELD_TYPES.find((entry) => entry.type === type)?.name ?? type;

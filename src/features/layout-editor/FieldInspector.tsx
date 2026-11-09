@@ -67,7 +67,10 @@ function Details({ field }: { field: Field }) {
   const assigneeId = useId();
 
   const [type, setType] = useOptimisticValue(field.type, (next: FieldType) =>
-    updateField(field.id, next === 'date' ? { type: next } : { type: next, autoFillSigningDate: false }),
+    updateField(
+      field.id,
+      next === 'date' ? { type: next } : { type: next, autoFillSigningDate: false },
+    ),
   );
   const [assignee, setAssignee] = useOptimisticValue(field.assignee, (next: Assignee) =>
     updateField(field.id, { assignee: next }),

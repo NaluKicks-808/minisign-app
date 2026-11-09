@@ -36,7 +36,12 @@ export function RecipientPicker() {
   return (
     <div className={styles.picker}>
       <span className={styles.caption}>Send to</span>
-      <select aria-label="Recipient" className="select" value={selected} onChange={(event) => select(event.target.value)}>
+      <select
+        aria-label="Recipient"
+        className="select"
+        value={selected}
+        onChange={(event) => select(event.target.value)}
+      >
         <option value="" disabled>
           Choose a person
         </option>

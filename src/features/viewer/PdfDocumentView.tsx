@@ -14,7 +14,11 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
 const MAX_PAGE_WIDTH = 1040;
 
 /** Renders every page of the active bundle's source as a PageSurface. */
-export function PdfDocumentView({ renderOverlay }: { renderOverlay?: (page: number) => ReactNode }) {
+export function PdfDocumentView({
+  renderOverlay,
+}: {
+  renderOverlay?: (page: number) => ReactNode;
+}) {
   const source = useAppStore((s) => s.activeBundle?.source);
 
   const columnRef = useRef<HTMLDivElement>(null);
