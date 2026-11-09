@@ -3,10 +3,13 @@ import type { FieldSuggestion, PageContent } from '../../../domain/autoprep';
 import type { Assignee, FieldType, NormalizedRect } from '../../../domain/types';
 import {
   LABEL_KINDS,
+  LINE_NUMBER,
   MINOR_WORDS,
   OPTIONAL_LABEL,
+  PRINTED_NAME,
   RECIPIENT_HEADER,
   SIGNATURE_BLOCK_LABELS,
+  SIGNING_DATE,
   type LabelKind,
 } from './keywords';
 import {
@@ -28,6 +31,8 @@ export interface FieldCandidate {
   captionRect: NormalizedRect;
   /** The ruled table holding the field, or null when it is unruled. */
   tableId: number | null;
+  /** The field's row in that table, or null when it is unruled. */
+  row: number | null;
   confidence: number;
   detector: string;
   evidence: string;
@@ -42,6 +47,10 @@ interface Header {
 
 /** Unruled fields this many caption heights apart still count as one signature block. */
 const SIGNATURE_BLOCK_LINES = 5;
+const ADJACENT_LINES = 3;
+/** Ruled rows from the signature that still belong to its block, and that count as next to it. */
+const SIGNATURE_BLOCK_ROWS = 2;
+const ADJACENT_ROWS = 1;
 const MAX_HEADING_WORDS = 5;
 const SAME_HEADER_ROW = 0.004;
 
@@ -54,7 +63,7 @@ export function isRequired(caption: string): boolean {
 }
 
 export function formatLabel(caption: string, inSignatureBlock: boolean): string {
-  const bare = caption.replace(/\s*:\s*$/, '').trim();
+  const bare = caption.replace(/\s*:\s*$/, '').trim().replace(LINE_NUMBER, '');
   if (inSignatureBlock) {
     const short = SIGNATURE_BLOCK_LABELS.find((entry) => entry.pattern.test(bare));
     if (short) return short.label;
@@ -70,11 +79,23 @@ export function formatLabel(caption: string, inSignatureBlock: boolean): string 
     .join(' ');
 }
 
-function sharesSignatureBlock(field: FieldCandidate, signature: FieldCandidate): boolean {
-  if (field.page !== signature.page) return false;
-  if (field.tableId !== null || signature.tableId !== null) return field.tableId === signature.tableId;
-  const reach = field.captionRect.h * SIGNATURE_BLOCK_LINES;
-  return Math.abs(field.captionRect.y - signature.captionRect.y) <= reach;
+type Closeness = 'adjacent' | 'near' | 'apart';
+
+/**
+ * How close a field sits to a signature. Sharing a table is not enough: a one-table form has its
+ * signature in the same table as every other field on the page.
+ */
+function closenessTo(field: FieldCandidate, signature: FieldCandidate): Closeness {
+  if (field.page !== signature.page) return 'apart';
+  if (field.tableId !== null || signature.tableId !== null) {
+    if (field.tableId !== signature.tableId) return 'apart';
+    const rows = Math.abs((field.row ?? 0) - (signature.row ?? 0));
+    if (rows <= ADJACENT_ROWS) return 'adjacent';
+    return rows <= SIGNATURE_BLOCK_ROWS ? 'near' : 'apart';
+  }
+  const distance = Math.abs(field.captionRect.y - signature.captionRect.y);
+  if (distance <= field.captionRect.h * ADJACENT_LINES) return 'adjacent';
+  return distance <= field.captionRect.h * SIGNATURE_BLOCK_LINES ? 'near' : 'apart';
 }
 
 function isHeadingSegment(text: string): boolean {
@@ -172,9 +193,11 @@ export function classify(
   const headers = findHeaders(page, cells, candidates);
   return candidates.map((candidate) => {
     const kind = kindOf(candidate.caption);
-    const inBlock = signatures.some((s) => sharesSignatureBlock(candidate, s));
+    const closeness = signatures.map((s) => closenessTo(candidate, s));
+    const adjacent = closeness.includes('adjacent');
+    const inBlock = adjacent || closeness.includes('near');
     let type: FieldType;
-    if (kind === 'name') type = inBlock ? 'signerName' : 'text';
+    if (kind === 'name') type = adjacent || (inBlock && PRINTED_NAME.test(candidate.caption)) ? 'signerName' : 'text';
     else type = kind;
     return {
       page: candidate.page,
@@ -183,7 +206,7 @@ export function classify(
       type,
       assignee: assigneeOf(candidate, headers, inBlock),
       required: isRequired(candidate.caption),
-      autoFillSigningDate: kind === 'date' && inBlock,
+      autoFillSigningDate: kind === 'date' && inBlock && SIGNING_DATE.test(candidate.caption.trim()),
       confidence: candidate.confidence,
       detector: candidate.detector,
       evidence: candidate.evidence,
