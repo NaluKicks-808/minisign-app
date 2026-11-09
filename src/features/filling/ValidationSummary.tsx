@@ -8,7 +8,7 @@ const issueText = (issue: FieldIssue) =>
 
 /** The guard's reasons repeat the field issues; those show once, as buttons. */
 function repeatsAnIssue(reason: string, issues: FieldIssue[]): boolean {
-  return issues.some((i) => reason.includes(i.message) || reason.startsWith(i.label));
+  return issues.some((i) => reason === i.message);
 }
 
 export function ValidationSummary({

@@ -267,6 +267,25 @@ describe('commands', () => {
     expect(await valueOf(docId, senderField.id)).toBeUndefined();
   });
 
+  it('updateField turning autoFillSigningDate on clears the value in the same save', async () => {
+    const { docId } = await draftForBob(h);
+    const date = await h.service.addField(DANA, docId, draftField({ type: 'date' }));
+    await h.service.setValue(DANA, date.id, '2026-01-02');
+    const save = vi.spyOn(h.repo, 'saveDocumentBundle');
+
+    await h.service.updateField(DANA, date.id, { autoFillSigningDate: true });
+
+    expect(save).toHaveBeenCalledTimes(1);
+    expect(await valueOf(docId, date.id)).toBeUndefined();
+  });
+
+  it('updateField keeps the value when the auto-date flag means nothing or was already on', async () => {
+    const { docId, senderField } = await draftForBob(h);
+    await h.service.setValue(DANA, senderField.id, 'filled');
+    await h.service.updateField(DANA, senderField.id, { autoFillSigningDate: true });
+    expect(await valueOf(docId, senderField.id)).toBe('filled');
+  });
+
   it('updateField keeps the value on any other change, or a same-value patch', async () => {
     const { docId, senderField } = await draftForBob(h);
     await h.service.setValue(DANA, senderField.id, 'filled');

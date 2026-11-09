@@ -52,8 +52,8 @@ export class AuditLog {
   }
 
   async verify(documentId: DocumentId): Promise<VerifyResult> {
-    const { events } = await this.load(documentId);
-    return verifyChain(events);
+    const { document, events } = await this.load(documentId);
+    return verifyChain(events, document.auditHead);
   }
 
   private async load(documentId: DocumentId): Promise<DocumentBundle> {

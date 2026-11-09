@@ -33,6 +33,7 @@ export interface Document {
   createdAt: string; // ISO
   sentAt: string | null;
   completedAt: string | null;
+  auditHead: { seq: number; hash: string } | null; // the newest event; verify detects a lost tail
 }
 
 export type FieldType = 'text' | 'email' | 'phone' | 'date' | 'signature' | 'signerName';

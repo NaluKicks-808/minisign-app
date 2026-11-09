@@ -21,7 +21,7 @@ import type {
   User,
   UserId,
 } from '../domain/types';
-import { isValidEmail } from '../domain/validation';
+import { isAutoFilled, isValidEmail } from '../domain/validation';
 import type { AuditLog } from './auditLog';
 
 const LAYOUT_LOCKED = 'Only the sender can change the layout, and only while it is a draft';
@@ -55,6 +55,7 @@ export class DocumentService {
         createdAt: this.now().toISOString(),
         sentAt: null,
         completedAt: null,
+        auditHead: null,
       };
       await this.commit(
         { document, fields: [], values: [], events: [] },
@@ -89,13 +90,16 @@ export class DocumentService {
     });
   }
 
-  /** A change of type or assignee clears any value already on the field. */
+  /** A change of type or assignee, or turning on auto-fill, clears any value already on the field. */
   async updateField(actorId: UserId, fieldId: FieldId, patch: FieldPatch): Promise<Field> {
     return this.serialized(async () => {
       const { bundle, field } = await this.loadField(actorId, fieldId);
       this.guard(canEditLayout(bundle.document, actorId), LAYOUT_LOCKED);
       const updated: Field = { ...field, ...patch };
-      const clearsValue = updated.type !== field.type || updated.assignee !== field.assignee;
+      const clearsValue =
+        updated.type !== field.type ||
+        updated.assignee !== field.assignee ||
+        (isAutoFilled(updated) && !isAutoFilled(field));
       await this.commit(
         bundle,
         actorId,

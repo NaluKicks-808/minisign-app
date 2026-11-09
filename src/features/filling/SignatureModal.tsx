@@ -22,6 +22,8 @@ function SignatureDialog({ field }: { field: Field }) {
   const [text, setText] = useState(existing?.kind === 'typed' ? existing.text : '');
   const [hasInk, setHasInk] = useState(false);
   const [saving, setSaving] = useState(false);
+  // The canvas sizes itself on mount, so it must wait until the dialog has layout.
+  const [dialogOpen, setDialogOpen] = useState(false);
   const dialog = useRef<HTMLDialogElement>(null);
   const canvas = useRef<SignatureCanvas>(null);
   const titleId = useId();
@@ -29,11 +31,18 @@ function SignatureDialog({ field }: { field: Field }) {
   useEffect(() => {
     // showModal gives the focus trap, Escape and focus return. Every exit ends in onClose.
     if (dialog.current && !dialog.current.open) dialog.current.showModal();
+    setDialogOpen(true);
   }, []);
 
   const typed: SignatureValue = { kind: 'typed', text: text.trim() };
   const typedError = validateValue('signature', typed, true);
   const canApply = !saving && (tab === 'type' ? typedError === null : hasInk);
+
+  function switchTab(next: Tab) {
+    // Leaving Draw unmounts the canvas, and its ink goes with it.
+    if (next !== tab) setHasInk(false);
+    setTab(next);
+  }
 
   function clear() {
     if (tab === 'type') setText('');
@@ -68,7 +77,7 @@ function SignatureDialog({ field }: { field: Field }) {
           role="tab"
           aria-selected={tab === 'type'}
           className={styles.tab}
-          onClick={() => setTab('type')}
+          onClick={() => switchTab('type')}
         >
           Type
         </button>
@@ -77,7 +86,7 @@ function SignatureDialog({ field }: { field: Field }) {
           role="tab"
           aria-selected={tab === 'draw'}
           className={styles.tab}
-          onClick={() => setTab('draw')}
+          onClick={() => switchTab('draw')}
         >
           Draw
         </button>
@@ -102,13 +111,15 @@ function SignatureDialog({ field }: { field: Field }) {
       ) : (
         <div className={styles.pane}>
           <p className={styles.hint}>Sign in the box with your mouse or finger.</p>
-          <SignatureCanvas
-            ref={canvas}
-            canvasProps={CANVAS_PROPS}
-            clearOnResize={false}
-            penColor="#16233b"
-            onEnd={() => setHasInk(!canvas.current?.isEmpty())}
-          />
+          {dialogOpen && (
+            <SignatureCanvas
+              ref={canvas}
+              canvasProps={CANVAS_PROPS}
+              clearOnResize={false}
+              penColor="#16233b"
+              onEnd={() => setHasInk(!canvas.current?.isEmpty())}
+            />
+          )}
         </div>
       )}
 

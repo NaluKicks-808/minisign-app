@@ -22,6 +22,7 @@ const doc = (over: Partial<Document> = {}): Document => ({
   createdAt: '',
   sentAt: null,
   completedAt: null,
+  auditHead: null,
   ...over,
 });
 const field = (id: string, over: Partial<Field> = {}): Field => ({

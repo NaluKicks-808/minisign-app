@@ -1,6 +1,6 @@
 /** Contract (PRD §8). */
 import { canonicalJson } from './canonicalJson';
-import type { AuditEvent, VerifyResult } from './types';
+import type { AuditEvent, Document, VerifyResult } from './types';
 
 export const GENESIS_HASH = '0'.repeat(64);
 export type HashInput = Pick<
@@ -15,8 +15,15 @@ export async function computeEventHash(input: HashInput): Promise<string> {
   return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, '0')).join('');
 }
 
-/** Recomputes the chain; reports the first seq that is missing, altered or out of order. */
-export async function verifyChain(events: AuditEvent[]): Promise<VerifyResult> {
+/**
+ * Recomputes the chain; reports the first seq that is missing, altered or out of order.
+ * A chain alone cannot show that its newest events were deleted, so the stored head is compared.
+ * No head (a document saved before it existed) means only the chain is checked.
+ */
+export async function verifyChain(
+  events: AuditEvent[],
+  head: Document['auditHead'] = null,
+): Promise<VerifyResult> {
   let expectedPrevHash = GENESIS_HASH;
   for (const [index, event] of events.entries()) {
     const expectedSeq = index + 1;
@@ -25,6 +32,12 @@ export async function verifyChain(events: AuditEvent[]): Promise<VerifyResult> {
     if ((await computeEventHash(event)) !== event.hash)
       return { ok: false, brokenAtSeq: event.seq };
     expectedPrevHash = event.hash;
+  }
+  if (head) {
+    const last = events.at(-1);
+    const lastSeq = last?.seq ?? 0;
+    if (lastSeq !== head.seq) return { ok: false, brokenAtSeq: Math.min(lastSeq, head.seq) + 1 };
+    if (last?.hash !== head.hash) return { ok: false, brokenAtSeq: head.seq };
   }
   return { ok: true };
 }
