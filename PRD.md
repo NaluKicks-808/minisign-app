@@ -696,6 +696,7 @@ The write-up should be plain and specific, and roughly 2–3 pages. Use these he
 | `react-router-dom` | Each document gets a URL, so a refresh keeps you on it |
 | `react-signature-canvas` | A drawn signature without hand-building canvas stroke handling |
 | `@fontsource/dancing-script` (or a similar script font) | The typed-signature font is bundled locally, with no network call |
+| `@fontsource-variable/schibsted-grotesk` | The interface typeface, bundled locally, so the app makes no font network call |
 | Dev: `vitest`, `@testing-library/react`, `jsdom`, `@playwright/test`, `pdf-lib`, `eslint`, `prettier` | Tests, the synthetic fixture PDF, and code quality |
 
 Do not add a drag-and-drop library. Pointer events plus `geometry.ts` are under 100 lines, and this keeps coordinate logic in one place. Do not add a form library, XState or a UI kit. Any extra library the lead adds needs a one-line reason in this table and in the write-up.
