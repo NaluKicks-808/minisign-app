@@ -35,6 +35,12 @@ function SignatureDialog({ field }: { field: Field }) {
   const typedError = validateValue('signature', typed, true);
   const canApply = !saving && (tab === 'type' ? typedError === null : hasInk);
 
+  function switchTab(next: Tab) {
+    // Leaving Draw unmounts the canvas, and its ink goes with it.
+    if (next !== tab) setHasInk(false);
+    setTab(next);
+  }
+
   function clear() {
     if (tab === 'type') setText('');
     else {
@@ -68,7 +74,7 @@ function SignatureDialog({ field }: { field: Field }) {
           role="tab"
           aria-selected={tab === 'type'}
           className={styles.tab}
-          onClick={() => setTab('type')}
+          onClick={() => switchTab('type')}
         >
           Type
         </button>
@@ -77,7 +83,7 @@ function SignatureDialog({ field }: { field: Field }) {
           role="tab"
           aria-selected={tab === 'draw'}
           className={styles.tab}
-          onClick={() => setTab('draw')}
+          onClick={() => switchTab('draw')}
         >
           Draw
         </button>
