@@ -81,6 +81,7 @@ describe('isValidDate', () => {
     '2026-1-1',
     '2026-01-01T00:00:00Z',
     'tomorrow',
+      '0000-01-01',
   ])('rejects "%s"', (v) => expect(isValidDate(v)).toBe(false));
 });
 

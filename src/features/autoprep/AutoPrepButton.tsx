@@ -34,6 +34,7 @@ export function AutoPrepButton() {
       >
         {busy ? 'Reading the document…' : 'Auto-prep'}
       </button>
+      <p className={styles.hint}>Reads the document and suggests fields for you to review.</p>
       {empty && (
         <p className={styles.hint} role="status">
           No new fields found on this document.

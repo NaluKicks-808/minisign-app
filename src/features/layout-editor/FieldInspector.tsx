@@ -151,7 +151,7 @@ export function FieldInspector() {
 
   return (
     <section className={styles.section}>
-      <h3>Field details</h3>
+      <h2 className="panel-heading">Field details</h2>
       {field ? (
         <Details key={field.id} field={field} />
       ) : (

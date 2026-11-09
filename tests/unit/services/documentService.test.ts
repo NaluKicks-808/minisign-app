@@ -2,6 +2,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { SEED_SOURCE_ID } from '../../../src/data/seed';
 import { GuardError, NotVisibleError } from '../../../src/domain/errors';
 import type { Field } from '../../../src/domain/types';
+import type { FieldSuggestion } from '../../../src/domain/autoprep';
+import { AutoPrepService } from '../../../src/services/autoPrepService';
 import {
   BOB,
   completedByBob,
@@ -346,5 +348,68 @@ describe('commands', () => {
     await h.service.resetDemo();
     expect(await bundleOf(docId)).toBeNull();
     expect(await h.service.listDocumentsFor(DANA)).toEqual([]);
+  });
+});
+
+describe('placement checks in the service', () => {
+  it.each([
+    ['a page past the end', { page: 99 }],
+    ['page zero', { page: 0 }],
+    ['a box off the left edge', { rect: { x: -3, y: 0.1, w: 0.2, h: 0.05 } }],
+    ['a box past the bottom', { rect: { x: 0.1, y: 0.98, w: 0.2, h: 0.05 } }],
+    ['a zero-width box', { rect: { x: 0.1, y: 0.1, w: 0, h: 0.05 } }],
+    ['a NaN box', { rect: { x: Number.NaN, y: 0.1, w: 0.2, h: 0.05 } }],
+  ])('addField refuses %s and writes nothing', async (_name, over) => {
+    const { docId } = await draftForBob(h);
+    await expectNothingWritten(docId, () => h.service.addField(DANA, docId, draftField(over)), GuardError);
+  });
+
+  it('updateField refuses a rect off the page and writes nothing', async () => {
+    const { docId, senderField } = await draftForBob(h);
+    await expectNothingWritten(
+      docId,
+      () => h.service.updateField(DANA, senderField.id, { rect: { x: 0.9, y: 0.1, w: 0.2, h: 0.05 } }),
+      GuardError,
+    );
+  });
+});
+
+describe('AutoPrepService.accept', () => {
+  const suggestion = (x: number) =>
+    ({
+      key: `s${x}`,
+      type: 'text',
+      label: `Box ${x}`,
+      required: true,
+      assignee: 'sender',
+      page: 1,
+      rect: { x, y: 0.5, w: 0.1, h: 0.05 },
+      autoFillSigningDate: false,
+      evidence: '',
+    }) as unknown as FieldSuggestion;
+
+  it('a retry after a partial failure does not save a box twice', async () => {
+    const { docId } = await draftForBob(h);
+    const before = (await bundleOf(docId))!.fields.length;
+    const unused = {} as never;
+    const prep = new AutoPrepService({
+      repo: h.repo,
+      audit: h.audit,
+      documents: h.service,
+      extractor: unused,
+      detector: unused,
+    });
+    const all = [suggestion(0.1), suggestion(0.3), suggestion(0.5)];
+    const realAdd = h.service.addField.bind(h.service);
+    let calls = 0;
+    const spy = vi.spyOn(h.service, 'addField').mockImplementation((...args) => {
+      calls += 1;
+      if (calls === 3) return Promise.reject(new Error('quota'));
+      return realAdd(...args);
+    });
+    await expect(prep.accept(DANA, docId, all)).rejects.toThrow('quota');
+    spy.mockRestore();
+    await prep.accept(DANA, docId, all);
+    expect((await bundleOf(docId))!.fields.length).toBe(before + 3);
   });
 });

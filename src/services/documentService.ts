@@ -5,6 +5,7 @@ import { GuardError, NotFoundError, NotVisibleError } from '../domain/errors';
 import { canEditLayout, canEditValue, canView } from '../domain/permissions';
 import { canTransition } from '../domain/stateMachine';
 import type {
+  NormalizedRect,
   Assignee,
   AuditEventType,
   Document,
@@ -78,6 +79,7 @@ export class DocumentService {
     return this.serialized(async () => {
       const bundle = await this.loadVisible(docId, actorId);
       this.guard(canEditLayout(bundle.document, actorId), LAYOUT_LOCKED);
+      await this.guardPlacement(bundle, draft.page, draft.rect);
       const field: Field = { ...draft, id: `fld_${crypto.randomUUID()}`, documentId: docId };
       await this.commit(
         bundle,
@@ -96,6 +98,7 @@ export class DocumentService {
       const { bundle, field } = await this.loadField(actorId, fieldId);
       this.guard(canEditLayout(bundle.document, actorId), LAYOUT_LOCKED);
       const updated: Field = { ...field, ...patch };
+      await this.guardPlacement(bundle, updated.page, updated.rect);
       const clearsValue =
         updated.type !== field.type ||
         updated.assignee !== field.assignee ||
@@ -247,6 +250,29 @@ export class DocumentService {
 
   private guard(allowed: boolean, reason: string): void {
     if (!allowed) throw new GuardError([reason]);
+  }
+
+  /** The UI clamps placement too; this holds for callers that are not the UI. */
+  private async guardPlacement(
+    bundle: DocumentBundle,
+    page: number,
+    rect: NormalizedRect,
+  ): Promise<void> {
+    const source = await this.repo.getSourceDocument(bundle.document.sourceDocumentId);
+    const { x, y, w, h } = rect;
+    const SLACK = 1e-6;
+    const onPage =
+      [x, y, w, h].every(Number.isFinite) &&
+      x >= -SLACK &&
+      y >= -SLACK &&
+      w > 0 &&
+      h > 0 &&
+      x + w <= 1 + SLACK &&
+      y + h <= 1 + SLACK;
+    this.guard(
+      Number.isInteger(page) && page >= 1 && page <= (source?.pageCount ?? page) && onPage,
+      'A field must sit inside a page of this document',
+    );
   }
 
   private async load(docId: DocumentId): Promise<DocumentBundle> {

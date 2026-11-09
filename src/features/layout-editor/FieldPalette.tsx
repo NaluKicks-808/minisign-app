@@ -22,7 +22,7 @@ export function FieldPalette() {
 
   return (
     <section className={styles.section}>
-      <h3>Add a field</h3>
+      <h2 className="panel-heading">Add a field</h2>
       <div className={styles.grid}>
         {FIELD_TYPES.map(({ type, name, hint }) => (
           <button

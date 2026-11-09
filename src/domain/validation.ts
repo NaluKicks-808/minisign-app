@@ -23,6 +23,7 @@ export function isValidDate(v: string): boolean {
   const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(v);
   if (!match) return false;
   const [year, month, day] = [Number(match[1]), Number(match[2]), Number(match[3])];
+  if (year === 0) return false;
   // setUTCFullYear rolls impossible dates over (Feb 30 becomes Mar 2), so a round trip detects them.
   const date = new Date(0);
   date.setUTCFullYear(year, month - 1, day);

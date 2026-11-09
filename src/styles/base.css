@@ -31,7 +31,8 @@ h1 {
 h2 {
   font-size: var(--text-lg);
 }
-h3 {
+h3,
+.panel-heading {
   font-size: var(--text-md);
 }
 :focus-visible {

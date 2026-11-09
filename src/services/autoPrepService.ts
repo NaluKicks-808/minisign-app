@@ -48,8 +48,12 @@ export class AutoPrepService {
   }
 
   async accept(actorId: UserId, docId: DocumentId, suggestions: FieldSuggestion[]): Promise<void> {
-    await this.guarded(actorId, docId);
-    for (const s of suggestions) {
+    const { fields } = await this.guarded(actorId, docId);
+    // A retry after a partial failure must not save the same box twice.
+    const unsaved = suggestions.filter(
+      (s) => !fields.some((f) => f.page === s.page && iou(f.rect, s.rect) > OVERLAP_IOU),
+    );
+    for (const s of unsaved) {
       await this.deps.documents.addField(actorId, docId, {
         type: s.type,
         label: s.label,

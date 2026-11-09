@@ -104,6 +104,9 @@ function SignatureDialog({ field }: { field: Field }) {
             autoComplete="off"
             value={text}
             onChange={(e) => setText(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && canApply) void apply();
+            }}
           />
           <div className={styles.preview}>{text}</div>
           {text.trim() !== '' && typedError && <p className="error-text">{typedError}</p>}

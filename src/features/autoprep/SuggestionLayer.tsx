@@ -97,7 +97,7 @@ export function SuggestionInspector() {
 
   return (
     <section className={styles.inspector} aria-label="Suggestions">
-      <h3>Review suggestions</h3>
+      <h2 className="panel-heading">Review suggestions</h2>
       <p className={styles.count} data-testid="suggestion-count">
         {suggestions.length === 1 ? '1 suggestion left' : `${suggestions.length} suggestions left`}
       </p>

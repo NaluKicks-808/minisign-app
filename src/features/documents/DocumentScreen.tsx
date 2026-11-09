@@ -84,7 +84,7 @@ function ReadOnly() {
         </Banner>
       ) : (
         <Banner tone="sent">
-          {`Sent to ${recipient?.name ?? 'the recipient'}, waiting for them to finish. Your copy is locked.`}
+          {`Sent to ${recipient?.name ?? 'the recipient'}, waiting for them to finish. Your copy is locked. To fill it in as them, change Acting as at the top.`}
         </Banner>
       )}
       <div className={styles.pages}>
