@@ -1,0 +1,107 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+html,
+body,
+#root {
+  height: 100%;
+}
+body {
+  margin: 0;
+  background: var(--desk);
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: var(--text-md);
+  font-weight: var(--weight-normal);
+  line-height: var(--leading);
+}
+h1,
+h2,
+h3 {
+  margin: 0;
+  font-weight: var(--weight-bold);
+  line-height: 1.2;
+}
+h1 {
+  font-size: var(--text-xl);
+  letter-spacing: -0.015em;
+}
+h2 {
+  font-size: var(--text-lg);
+}
+h3 {
+  font-size: var(--text-md);
+}
+:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-control);
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+  font-weight: var(--weight-medium);
+  cursor: pointer;
+}
+.btn:hover:not(:disabled) {
+  border-color: var(--ink-soft);
+}
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.btn-primary {
+  border-color: var(--blotter);
+  background: var(--blotter);
+  color: var(--on-blotter);
+}
+.btn-primary:hover:not(:disabled) {
+  background: var(--blotter-raised);
+}
+.btn-danger {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+.input,
+.select {
+  width: 100%;
+  padding: var(--space-2);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-control);
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+}
+.input[aria-invalid='true'] {
+  border-color: var(--danger);
+}
+.panel {
+  background: var(--panel);
+  border-left: 1px solid var(--line);
+}
+.field-label {
+  display: block;
+  margin-bottom: var(--space-1);
+  color: var(--ink-soft);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+}
+.error-text {
+  color: var(--danger);
+  font-size: var(--text-sm);
+}
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}

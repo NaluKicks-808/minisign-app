@@ -1,0 +1,89 @@
+/*
+ * MiniSign design tokens. The idea: a banker's desk. Bottle-green blotter for the
+ * app shell, a sage desk surface under the pages, real white paper, fountain-pen
+ * ink for text, and sign-here flags on the fields.
+ * Rule of thumb: spend colour on who must act (ink blue = sender, flag amber =
+ * recipient). Everything else stays quiet.
+ */
+:root {
+  /* Base palette */
+  --blotter: #17372f;
+  --blotter-raised: #21493f;
+  --blotter-line: #356256;
+  --on-blotter: #eef3ec;
+  --on-blotter-muted: #b4c7bb;
+  --desk: #d5dcd2;
+  --desk-deep: #c3ccbf;
+  --paper: #ffffff;
+  --panel: #f6f8f4;
+  --line: #d3d9cf;
+  --line-strong: #a9b3a5;
+  --ink: #16233b;
+  --ink-soft: #4b5870;
+  --ink-faint: #76818f;
+
+  /* Who acts: used on field boxes, flags and role markers */
+  --sender: #1f5fbf;
+  --sender-tint: rgb(31 95 191 / 0.1);
+  --sender-tint-strong: rgb(31 95 191 / 0.2);
+  --on-sender: #ffffff;
+  --recipient: #f0ab14;
+  --recipient-deep: #8a5d00;
+  --recipient-tint: rgb(240 171 20 / 0.14);
+  --recipient-tint-strong: rgb(240 171 20 / 0.3);
+  --on-recipient: #16233b;
+
+  /* Status */
+  --status-draft: #5c6776;
+  --status-draft-tint: #e6e9e6;
+  --status-sent: #1f5fbf;
+  --status-sent-tint: #dfe9f8;
+  --status-completed: #1c6e4d;
+  --status-completed-tint: #d8ecdf;
+
+  /* Feedback */
+  --danger: #b3261e;
+  --danger-tint: #fbe7e4;
+  --ok: #1c6e4d;
+  --ok-tint: #d8ecdf;
+  --suggestion: #6a3fb5;
+  --suggestion-tint: rgb(106 63 181 / 0.1);
+
+  /* Type */
+  --font-ui: 'Schibsted Grotesk Variable', 'Helvetica Neue', Arial, sans-serif;
+  --font-signature: 'Dancing Script', cursive;
+  --text-xs: 0.75rem;
+  --text-sm: 0.8125rem;
+  --text-md: 0.9375rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.75rem;
+  --leading: 1.45;
+  --weight-normal: 420;
+  --weight-medium: 560;
+  --weight-bold: 720;
+
+  /* Space (4 px base) */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+
+  /* Shape: controls are crisp, modals softer, paper is square */
+  --radius-control: 3px;
+  --radius-modal: 8px;
+  --header-h: 56px;
+  --side-w: 320px;
+
+  /* Depth: only paper and modals lift off the desk */
+  --shadow-paper: 0 1px 2px rgb(23 55 47 / 0.25), 0 8px 22px rgb(23 55 47 / 0.16);
+  --shadow-modal: 0 18px 60px rgb(23 55 47 / 0.4);
+
+  /* The memorable thing: field tabs cut like sign-here flags */
+  --flag-clip: polygon(0 0, 100% 0, calc(100% - 6px) 50%, 100% 100%, 0 100%);
+  --flag-pad: 2px 12px 2px 5px;
+
+  --focus-ring: 0 0 0 2px var(--paper), 0 0 0 4px var(--sender);
+}
