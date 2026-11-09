@@ -42,7 +42,7 @@ export function SuggestionLayer({ page }: { page: number }) {
               data-field-type={s.type}
               data-assignee={s.assignee}
               data-page={s.page}
-              aria-label={`Suggested field: ${s.label}, ${TYPE_NAMES[s.type]}`}
+              aria-description="Suggested field"
               aria-pressed={selected}
               title={s.evidence}
               onPointerDown={(event) => event.stopPropagation()}

@@ -152,7 +152,7 @@ export function DocumentScreen() {
         </div>
         {body}
       </main>
-      <aside className={`panel ${styles.side}`}>
+      <aside className={`panel ${styles.side}`} aria-label="Activity" tabIndex={0}>
         <ActivityPanel />
       </aside>
       <SignatureModal />

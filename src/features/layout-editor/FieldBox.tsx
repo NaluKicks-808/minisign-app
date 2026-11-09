@@ -100,7 +100,7 @@ export function FieldBox({ field }: { field: Field }) {
       className={styles.box}
       role="button"
       tabIndex={0}
-      aria-label={field.label}
+      aria-label={`${fieldTypeName(field.type)}: ${field.label}, ${field.assignee}`}
       aria-pressed={selected}
       data-selected={selected}
       onPointerDown={(event) => begin(event, dragRect)}

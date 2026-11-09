@@ -6,6 +6,7 @@ import styles from './Header.module.css';
 
 function HeaderMenu() {
   const [open, setOpen] = useState(false);
+  const [confirming, setConfirming] = useState(false);
   const root = useRef<HTMLDivElement>(null);
   const menuId = useId();
   const resetDemo = useAppStore((s) => s.resetDemo);
@@ -14,10 +15,10 @@ function HeaderMenu() {
   useEffect(() => {
     if (!open) return;
     const onPointerDown = (e: PointerEvent) => {
-      if (!root.current?.contains(e.target as Node)) setOpen(false);
+      if (!root.current?.contains(e.target as Node)) close();
     };
     const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setOpen(false);
+      if (e.key === 'Escape') close();
     };
     document.addEventListener('pointerdown', onPointerDown);
     document.addEventListener('keydown', onKeyDown);
@@ -27,8 +28,13 @@ function HeaderMenu() {
     };
   }, [open]);
 
-  function onReset() {
+  function close() {
     setOpen(false);
+    setConfirming(false);
+  }
+
+  function onReset() {
+    close();
     navigate('/');
     void resetDemo();
   }
@@ -40,14 +46,26 @@ function HeaderMenu() {
         className={styles.menuButton}
         aria-expanded={open}
         aria-controls={menuId}
-        onClick={() => setOpen(!open)}
+        onClick={() => (open ? close() : setOpen(true))}
       >
         Menu
       </button>
       <div id={menuId} className={styles.menuPanel} hidden={!open}>
-        <button type="button" className={styles.menuItem} onClick={onReset}>
-          Reset demo data
-        </button>
+        {confirming ? (
+          <>
+            <p className={styles.menuWarning}>Erase every document and its history?</p>
+            <button type="button" className={styles.menuItem} autoFocus onClick={close}>
+              Keep my documents
+            </button>
+            <button type="button" className={styles.menuItem} onClick={onReset}>
+              Erase and start over
+            </button>
+          </>
+        ) : (
+          <button type="button" className={styles.menuItem} onClick={() => setConfirming(true)}>
+            Reset demo data
+          </button>
+        )}
       </div>
     </div>
   );

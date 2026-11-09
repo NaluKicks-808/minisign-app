@@ -18,7 +18,7 @@ export function LayoutEditor() {
   return (
     <div className={styles.editor}>
       <PdfDocumentView renderOverlay={renderOverlay} />
-      <aside className={`panel ${styles.side}`}>
+      <aside className={`panel ${styles.side}`} aria-label="Layout tools" tabIndex={0}>
         {suggestionSelected && <SuggestionInspector />}
         <AutoPrepButton />
         <FieldPalette />
