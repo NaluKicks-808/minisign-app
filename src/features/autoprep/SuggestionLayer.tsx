@@ -74,6 +74,8 @@ export function SuggestionInspector() {
   if (suggestions.length === 0) return null;
   const selected = suggestions.find((s) => s.key === selectedKey) ?? null;
   const allKeys = suggestions.map((s) => s.key);
+  const isBlank = (s: FieldSuggestion) => s.label.trim() === '';
+  const anyBlank = suggestions.some(isBlank);
 
   const run = async (command: (keys: string[]) => Promise<void>, keys: string[]) => {
     setBusy(true);
@@ -162,7 +164,7 @@ export function SuggestionInspector() {
             <button
               type="button"
               className="btn btn-primary"
-              disabled={busy}
+              disabled={busy || isBlank(selected)}
               onClick={() => void run(acceptSuggestions, [selected.key])}
             >
               Accept
@@ -181,11 +183,13 @@ export function SuggestionInspector() {
         <p className={styles.hint}>Select a dashed box to edit it.</p>
       )}
 
+      {anyBlank && <p className="error-text">A suggestion with a blank label cannot be accepted.</p>}
+
       <div className={styles.actions}>
         <button
           type="button"
           className="btn"
-          disabled={busy}
+          disabled={busy || anyBlank}
           onClick={() => void run(acceptSuggestions, allKeys)}
         >
           Accept all
