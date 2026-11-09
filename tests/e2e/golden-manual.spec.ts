@@ -31,13 +31,15 @@ test('golden path: manual layout', async ({ page }) => {
 
   // Drag one box a little and check that it moved.
   const fax = box(page, 'Fax');
+  await fax.scrollIntoViewIfNeeded();
   const start = (await fax.boundingBox())!;
   await page.mouse.move(start.x + start.width / 2, start.y + start.height / 2);
   await page.mouse.down();
   await page.mouse.move(start.x + start.width / 2 + 12, start.y + start.height / 2 + 3, { steps: 4 });
   await page.mouse.up();
-  const moved = (await fax.boundingBox())!;
-  expect(Math.abs(moved.x - start.x)).toBeGreaterThan(4);
+  await expect
+    .poll(async () => Math.abs((await fax.boundingBox())!.x - start.x))
+    .toBeGreaterThan(4);
 
   await page.getByRole('tab', { name: 'Fill' }).click();
   await expect(page.getByTestId('send-button')).toBeDisabled();

@@ -144,16 +144,7 @@ export function FieldInput({ field }: { field: Field }) {
   const editable = canEditValue(doc, field, me);
 
   return (
-    <div
-      className={`${styles.box} ${styles[field.assignee]}`}
-      data-testid="field-box"
-      data-field-id={field.id}
-      data-field-label={field.label}
-      data-field-type={field.type}
-      data-assignee={field.assignee}
-      data-origin={field.origin}
-      data-flag={withStar(field)}
-    >
+    <div className={`${styles.box} ${styles[field.assignee]}`}>
       {!editable && <ReadOnlyValue doc={doc} field={field} value={value} />}
       {editable && field.type === 'signature' && (
         <SignatureButton
