@@ -19,3 +19,15 @@ One entry each time the lead or the reviewer rejected or materially rewrote gene
 ## Reviewer
 
 - **Write-up.** Proposed by the lead: "All coordinate arithmetic lives in that module." The reviewer found the Auto-prep adapter divides by page size itself. Done: the sentence was corrected to say so.
+- **Recipient name.** Generated: a recipient added by email took the part before the @ as their name, and the signer-name field then stamped that string. Done: the picker asks for the recipient's full name.
+- **Audit chain.** Generated: a bare hash chain, described as tamper-evident. A probe showed deleting the newest event went unnoticed. Done: each document stores its head sequence and hash, and verification compares them.
+- **Blank drawn signature.** Generated: switching to Type and back cleared the ink but left Apply enabled. Done: the ink state resets with the tab.
+
+## Walkthrough
+
+- **Keyboard placement.** Generated: palette buttons armed a mode that only a mouse click on the page could finish. Done: a page picker and "Place on this page" button; arrow keys then move the field.
+- **Reset demo data.** Generated: one click erased everything. Done: the menu asks first and offers to keep the documents.
+
+## Changes the tests overturned
+
+- **Skipping unchanged saves.** Proposed by the lead: no `value.set` event when the value did not change. The seeded sequence test failed, because the PRD says each command appends exactly one event. Done: the change was dropped and the behaviour is listed as a gap.

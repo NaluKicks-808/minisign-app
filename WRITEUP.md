@@ -9,7 +9,7 @@ npm ci
 npm run dev
 ```
 
-Open the URL Vite prints. Sign-in is a dropdown: **Acting as** in the header switches between the seeded users, Dana Reyes (the demo sender), Bob Smith and Maria Lopez. **Menu → Reset demo data** clears storage and re-seeds.
+Open the URL Vite prints. Sign-in is a dropdown: **Acting as** in the header switches between the seeded users, Dana Reyes (the demo sender), Bob Smith and Maria Lopez. **Menu → Reset demo data** asks first, then clears storage and re-seeds.
 
 Tests: `npm test` (unit), `npm run test:e2e` (Playwright, Chromium; first run needs `npx playwright install chromium`), and `npm run verify` (typecheck, lint, unit, build, e2e).
 
@@ -50,7 +50,7 @@ flowchart TD
 
 4. **Zustand as a thin cache plus UI state, rather than Context or prop drilling.** Components read the current user, the active document and the selection through selectors. Props carry only local things, such as the field a box renders. The trade-off is one more dependency, and a store could tempt someone to treat it as the truth. Routing every write through services, then re-reading, closes that off.
 
-5. **An append-only, hash-chained audit log as the core record.** Every `DocumentService` command appends exactly one event in the same save as the change, and each event's hash covers the previous hash. Auto-prep's accept adds fields through those same commands, then records one more event of its own. The repository has no method that edits or removes an event. The alternative, a plain activity list, could show history but could not show that history had been altered. The log is part of the core design, not the Part 2 feature: it is how the bouncer records every decision. Its limit is below, under what's unfinished.
+5. **An append-only, hash-chained audit log as the core record.** Every `DocumentService` command appends exactly one event in the same save as the change, and each event's hash covers the previous hash. Auto-prep's accept adds fields through those same commands, then records one more event of its own. The repository has no method that edits or removes an event. The alternative, a plain activity list, could show history but could not show that history had been altered. The log is part of the core design, not the Part 2 feature: it is how the bouncer records every decision. Each document also stores the sequence number and hash of its newest event, because a bare chain cannot show that its last event was deleted. That head sits in the same storage, so it catches a deleted event, not someone who rewrites the head as well.
 
 ## My feature: Auto-prep
 
@@ -58,7 +58,7 @@ flowchart TD
 
 **How it plugs in.** Detectors sit behind a `FieldDetector` interface and work on a plain `PageContent` description of the page, so the core is pure and tested without a browser. One adapter is the only code that touches pdf.js for extraction. Suggestions stay UI state until accepted. Acceptance goes through the same `addField` as manual placement, so every lock and audit rule still applies, and an accepted field is an ordinary field from then on.
 
-**Its limits.** It needs a real text layer, so a scanned PDF needs text recognition first, which would be another detector. The keyword tables are English-only.
+**Its limits.** It needs a real text layer, so a scanned PDF needs text recognition first, which would be another detector. The keyword tables are English-only. Test fixtures cover A4, legal, landscape, rotated pages, a page whose origin is not zero, an 8-column table and a PDF with no text. I also ran it on nine real government PDFs: none crashed. It found 83 boxes on the I-9, 19 on a 1040 and 19 on an SS-4, where ruled grids carry the structure. It found 2 on the W-9, whose signature line is not a ruled cell and whose captions run over several lines. It proposed 8 false boxes from an IF/THEN reference table on SS-4 page 2. It found nothing on an XFA shell form, and it does not read a PDF's existing form fields. I judged those runs from the printed positions, not by viewing each box over the rendered form.
 
 **How it would grow.** An OCR or model detector behind the same interface, and keyword tables per organization.
 
@@ -86,18 +86,21 @@ The full list is in `docs/ai-usage-log.md`.
 - Exporting a flattened signed PDF. `toPdfPoints` plus `pdf-lib` stamping is the next step.
 - Multiple recipients and signing order. The model is one recipient per document by design.
 - A mobile layout. The app is desktop-first; field positions are tested at 800 px wide, but layouts below 1024 px are not designed.
-- Audit log limit: deleting the most recent event is not detectable from a bare hash chain. It would need the head hash stored elsewhere.
 - Saves are atomic within one tab only. Two tabs editing at once can overwrite each other.
 - Tested in Chromium only.
 
-Known bugs and gaps from independent review, none of which breaks the main sender and recipient flows:
+Known gaps from independent review and a first-time-user walkthrough, none of which breaks the main sender and recipient flows:
 
-- Signature modal: after drawing, switching to Type and back to Draw clears the ink but leaves Apply enabled, so a blank drawn signature can be stored and counts as signed.
-- Signature modal: reopening a field that already holds a drawn signature opens a zero-size canvas, and Apply then fails with no message. The existing signature is unchanged.
-- A missing required signature shows in the summary beside Send or Finish, but not inline on the field.
-- The blocking-reasons list hides a non-field reason when that reason starts with a field's label, and a suggestion can be accepted with a blank label, which hides all of them.
-- Turning on "Fill in the signing date" keeps any date already typed, so the draft shows that date rather than "Fills in on signing".
+- Send and Finish lock the document on one press, with no confirmation.
+- The completed view has no download or print control.
+- Focus falls back to the page body after Auto-prep, Accept all, Delete field, Send and Finish, and Send and Finish are not announced to a screen reader.
+- On a filled form, a validation message or a focused field's flag can cover the neighbouring field.
+- At 1024 px the page shrinks until the agreement is hard to read and the fields are small targets.
+- After Accept all, "Signature is required" reads like a missing field when it means the signature is still to be filled in. A blocking reason clears only when the field loses focus.
+- A new field defaults to the recipient, and the assignee control can sit below the fold. Delete field has no undo.
+- `value.set` events record the field, not the old and new values, and saving an unchanged value appends another event.
+- Zip and State are free text.
 - Uploaded source documents are not scoped to the uploader, so every user can pick them on the New document screen.
 - Auto-prep's audit events are written outside the service's write queue. Overlapping direct service calls can fork the chain. The app's store runs commands one at a time, so the UI does not hit this.
 - Layering: `src/services/container.ts` imports from `src/features`, the layout editor imports Auto-prep directly, and `src/domain/geometry.ts` imports one React type.
-- Test coverage: `AutoPrepService` has no unit test of its guards or events, the Auto-prep upload e2e runs on a one-page PDF, and the invalid-value e2e checks only that "Email" and "Phone" are listed.
+- Test coverage: `AutoPrepService` has a unit test for a retried accept, not for its guards or events. Screen readers, touch and browsers other than Chromium were not tested.
