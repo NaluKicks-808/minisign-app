@@ -159,6 +159,26 @@ export async function expectReadOnly(page: Page): Promise<void> {
   await expect(editable).toHaveCount(0);
 }
 
+/** PRD §13.2.1: every sender value shows on the recipient's view, and none of them is editable. */
+export async function expectSenderValues(page: Page, values: { title: string; signature: string; name: string }): Promise<void> {
+  await expect(box(page, 'Print Name', 'sender')).toContainText(values.name);
+  await expect(box(page, 'Title', 'sender')).toContainText(values.title);
+  await expect(box(page, 'Signature', 'sender')).toContainText(values.signature);
+  await expect(box(page, 'Date', 'sender')).toContainText(todayLocal());
+  for (const label of ['Print Name', 'Title', 'Signature', 'Date']) {
+    await expect(
+      box(page, label, 'sender').locator('input:not([disabled]):not([readonly]), button[data-testid="field-input"]:not([disabled])'),
+    ).toHaveCount(0);
+  }
+}
+
+/** The blocking list names this field and says its value is invalid; "<label> is required" fails this. */
+export async function expectInvalidValueReason(page: Page, label: string): Promise<void> {
+  const reasons = page.getByTestId('blocking-reasons');
+  await expect(reasons.getByRole('button', { name: new RegExp(`^${label}\\b.*\\bvalid\\b`, 'i') })).toHaveCount(1);
+  await expect(reasons).not.toContainText(`${label} is required`);
+}
+
 /** Auto-prep, accept all 17, send to Bob. Leaves Dana on the sent document. */
 export async function sendViaAutoPrep(page: Page): Promise<void> {
   await freshStart(page);

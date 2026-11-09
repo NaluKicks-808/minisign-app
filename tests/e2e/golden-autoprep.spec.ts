@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 import {
-  actAs, box, expectReadOnly, expectStatus, fill, fillRecipientFields, freshStart,
-  newDocumentFromSample, openFirstRow, signDrawn, signTyped,
+  actAs, box, expectReadOnly, expectSenderValues, expectStatus, fill, fillRecipientFields, freshStart,
+  newDocumentFromSample, openFirstRow, signDrawn, signTyped, todayLocal,
 } from './helpers';
 
 test('golden path: Auto-prep', async ({ page }) => {
@@ -35,6 +35,7 @@ test('golden path: Auto-prep', async ({ page }) => {
 
   await actAs(page, 'u_bob');
   await openFirstRow(page);
+  await expectSenderValues(page, { name: 'Dana Reyes', title: 'Director', signature: 'Dana Reyes' });
   await fill(page, 'Postal Code', '78701', 'recipient');
   await fillRecipientFields(page);
   await signDrawn(page, 'Signature', 'recipient');
@@ -44,5 +45,6 @@ test('golden path: Auto-prep', async ({ page }) => {
   await expect(page.getByTestId('field-box')).toHaveCount(16);
   await expect(page.locator('[data-testid="field-box"][data-origin="autoprep"]')).toHaveCount(16);
   await expect(box(page, 'Print Name', 'recipient')).toContainText('Bob Smith');
+  await expect(box(page, 'Date', 'recipient')).toContainText(todayLocal());
   await expectReadOnly(page);
 });
