@@ -15,9 +15,13 @@ export function seededState(): StoredState {
 
 /** Applies one atomic change. Shared with LocalStorageRepository so both behave the same. */
 export function applyBundleChange(state: StoredState, change: BundleChange): void {
-  const i = state.documents.findIndex((d) => d.id === change.document.id);
-  if (i >= 0) state.documents[i] = change.document;
-  else state.documents.push(change.document);
+  const newest = change.appendEvents?.at(-1);
+  const document = newest
+    ? { ...change.document, auditHead: { seq: newest.seq, hash: newest.hash } }
+    : change.document;
+  const i = state.documents.findIndex((d) => d.id === document.id);
+  if (i >= 0) state.documents[i] = document;
+  else state.documents.push(document);
 
   for (const f of change.upsertFields ?? []) {
     const j = state.fields.findIndex((x) => x.id === f.id);

@@ -6,7 +6,7 @@ import { STORAGE_KEY } from '../../../src/data/repository';
 import { SEED_SOURCE_ID } from '../../../src/data/seed';
 import { canonicalJson } from '../../../src/domain/canonicalJson';
 import { computeEventHash, GENESIS_HASH, verifyChain } from '../../../src/domain/hashChain';
-import type { AuditEvent } from '../../../src/domain/types';
+import type { AuditEvent, Document } from '../../../src/domain/types';
 import {
   BOB,
   completedByBob,
@@ -145,6 +145,36 @@ describe('verify reports where stored history broke', () => {
   it.each([1, 2, 3])('reports the missing seq when event %i is deleted', async (seq) => {
     tamper((events) => events.filter((e) => e.seq !== seq));
     expect(await h.audit.verify(docId)).toEqual({ ok: false, brokenAtSeq: seq });
+  });
+
+  it('reports the seq after the last survivor when the newest event is deleted', async () => {
+    tamper((events) => events.filter((e) => e.seq !== 4));
+    expect(await h.audit.verify(docId)).toEqual({ ok: false, brokenAtSeq: 4 });
+  });
+
+  it('reports the seq after the last survivor when several newest events are deleted', async () => {
+    tamper((events) => events.filter((e) => e.seq <= 2));
+    expect(await h.audit.verify(docId)).toEqual({ ok: false, brokenAtSeq: 3 });
+  });
+
+  it('reports seq 1 when every event is deleted', async () => {
+    tamper(() => []);
+    expect(await h.audit.verify(docId)).toEqual({ ok: false, brokenAtSeq: 1 });
+  });
+
+  it('reports the newest seq when a forger recomputes the newest event', async () => {
+    const forged = (await eventsOf(docId)).find((e) => e.seq === 4)!;
+    const data = { forged: true };
+    const hash = await computeEventHash({ ...forged, data });
+    tamper((events) => events.map((e) => (e.seq === 4 ? { ...e, data, hash } : e)));
+    expect(await h.audit.verify(docId)).toEqual({ ok: false, brokenAtSeq: 4 });
+  });
+
+  it('still verifies a document stored before auditHead existed', async () => {
+    const state = JSON.parse(localStorage.getItem(STORAGE_KEY)!) as StoredState;
+    for (const doc of state.documents) delete (doc as Partial<Document>).auditHead;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    expect(await h.audit.verify(docId)).toEqual({ ok: true });
   });
 
   it('reports a wrong prevHash at that seq', async () => {

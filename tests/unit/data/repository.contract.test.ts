@@ -16,6 +16,7 @@ const document = (over: Partial<Document> = {}): Document => ({
   createdAt: '2026-01-01T00:00:00.000Z',
   sentAt: null,
   completedAt: null,
+  auditHead: null,
   ...over,
 });
 const field = (id: string, label = 'Box'): Field => ({
@@ -97,7 +98,7 @@ describe.each<[string, () => Repository]>([
       appendEvents: [event(1)],
     });
     expect(await repo.getDocumentBundle('doc_1')).toEqual({
-      document: document(),
+      document: document({ auditHead: { seq: 1, hash: 'h' } }),
       fields: [field('f1')],
       values: [value('f1')],
       events: [event(1)],

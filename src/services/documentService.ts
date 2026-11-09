@@ -55,6 +55,7 @@ export class DocumentService {
         createdAt: this.now().toISOString(),
         sentAt: null,
         completedAt: null,
+        auditHead: null,
       };
       await this.commit(
         { document, fields: [], values: [], events: [] },
