@@ -1,0 +1,12 @@
+/* The button stays top-right: a blur commit can shrink the list between press and release. */
+.bar {
+  display: flex;
+  flex: 1;
+  align-items: flex-start;
+  gap: var(--space-4);
+  min-width: 280px;
+}
+.action {
+  flex: none;
+  margin-left: auto;
+}
