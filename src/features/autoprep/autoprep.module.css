@@ -5,6 +5,7 @@
   gap: var(--space-1);
   padding: 0 var(--space-1);
   overflow: hidden;
+  container-type: size;
   border: 1px dashed var(--suggestion);
   border-radius: var(--radius-control);
   background: var(--suggestion-tint);
@@ -25,10 +26,12 @@
 }
 .boxType {
   flex: none;
+  font-size: min(58cqh, 0.7rem);
   font-weight: var(--weight-bold);
 }
 .boxLabel {
   min-width: 0;
+  font-size: min(58cqh, 0.7rem);
   overflow: hidden;
   text-overflow: ellipsis;
 }

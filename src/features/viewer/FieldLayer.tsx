@@ -38,6 +38,9 @@ export function FieldLayer({
                 <span className={styles.flagText}>{field.label}</span>
                 {field.required && <span>*</span>}
               </span>
+              <span className={styles.marker} aria-hidden="true">
+                {field.required ? '*' : ''}
+              </span>
               <div className={styles.content}>{renderField(field)}</div>
             </div>
           ))}

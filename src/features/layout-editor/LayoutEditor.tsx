@@ -19,9 +19,10 @@ export function LayoutEditor() {
     <div className={styles.editor}>
       <PdfDocumentView renderOverlay={renderOverlay} />
       <aside className={`panel ${styles.side}`}>
+        {suggestionSelected && <SuggestionInspector />}
         <AutoPrepButton />
         <FieldPalette />
-        {suggestionSelected ? <SuggestionInspector /> : <FieldInspector />}
+        {!suggestionSelected && <FieldInspector />}
       </aside>
     </div>
   );

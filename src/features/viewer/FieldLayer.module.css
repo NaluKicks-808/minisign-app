@@ -45,6 +45,34 @@
   line-height: 1.2;
   white-space: nowrap;
   pointer-events: none;
+  opacity: 0;
+  z-index: 6;
+}
+
+/* The full flag only shows when you are on a box, so it never covers the form or a value. */
+.box:hover .flag,
+.box:focus-within .flag,
+.box:has([data-selected='true']) .flag {
+  opacity: 1;
+}
+
+/* The always-visible tab: a small flag on the box's right edge, starred when required. */
+.marker {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  height: min(100%, 12px);
+  padding: 0 8px 0 3px;
+  background: var(--who);
+  clip-path: var(--flag-clip);
+  color: var(--on-who);
+  font-size: min(90cqh, 11px);
+  font-weight: var(--weight-bold);
+  line-height: 1;
+  pointer-events: none;
 }
 
 .flagText {
