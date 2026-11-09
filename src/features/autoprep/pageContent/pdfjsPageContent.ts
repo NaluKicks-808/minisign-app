@@ -335,12 +335,12 @@ export async function readPageInfo(pdf: PDFDocumentProxy): Promise<PdfInfo> {
 
 async function withPdf<T>(
   data: Uint8Array,
-  use: (pdf: PDFDocumentProxy) => Promise<T>,
+  read: (pdf: PDFDocumentProxy) => Promise<T>,
 ): Promise<T> {
   GlobalWorkerOptions.workerSrc ||= workerUrl;
   const task = getDocument({ data });
   try {
-    return await use(await task.promise);
+    return await read(await task.promise);
   } finally {
     await task.destroy();
   }
