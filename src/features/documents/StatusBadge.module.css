@@ -1,0 +1,23 @@
+.badge {
+  display: inline-block;
+  padding: 1px var(--space-2);
+  border-radius: var(--radius-control);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  white-space: nowrap;
+}
+.badge::first-letter {
+  text-transform: uppercase;
+}
+.draft {
+  background: var(--status-draft-tint);
+  color: var(--status-draft);
+}
+.sent {
+  background: var(--status-sent-tint);
+  color: var(--status-sent);
+}
+.completed {
+  background: var(--status-completed-tint);
+  color: var(--status-completed);
+}
