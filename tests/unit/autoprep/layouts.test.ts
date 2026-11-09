@@ -60,6 +60,7 @@ describe('pages with nothing to offer', () => {
   it('gives no boxes when rotation leaves the text on its side', async () => {
     const pages = await extract(readBytes(layoutPdfPath('rotate-90-sideways')));
     expect(pages[0]?.rules.length, 'rules must survive, so this tests the words').toBeGreaterThan(0);
+    expect(pages[0]?.words, 'sideways text is not read as captions').toEqual([]);
     expect(createCompositeDetector().detect(pages)).toEqual([]);
   });
 
