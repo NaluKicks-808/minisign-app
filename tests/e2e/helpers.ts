@@ -158,3 +158,29 @@ export async function expectReadOnly(page: Page): Promise<void> {
   );
   await expect(editable).toHaveCount(0);
 }
+
+/** Auto-prep, accept all 17, send to Bob. Leaves Dana on the sent document. */
+export async function sendViaAutoPrep(page: Page): Promise<void> {
+  await freshStart(page);
+  await newDocumentFromSample(page);
+  await page.getByTestId('autoprep-button').click();
+  await expect(page.getByTestId('suggestion-box')).toHaveCount(17, { timeout: 30_000 });
+  await page.getByRole('button', { name: 'Accept all' }).click();
+  await expect(page.getByTestId('field-box')).toHaveCount(17);
+  await page.getByRole('tab', { name: 'Fill' }).click();
+  await fill(page, 'Title', 'Director', 'sender');
+  await signTyped(page, 'Signature', 'sender', 'Dana Reyes');
+  await page.getByLabel('Recipient', { exact: true }).selectOption('u_bob');
+  await page.getByTestId('send-button').click();
+  await expectStatus(page, 'sent');
+}
+
+/** Continues from sendViaAutoPrep: Bob fills in, signs and finishes. */
+export async function finishAsBob(page: Page): Promise<void> {
+  await actAs(page, 'u_bob');
+  await openFirstRow(page);
+  await fillRecipientFields(page);
+  await signDrawn(page, 'Signature', 'recipient');
+  await page.getByTestId('finish-button').click();
+  await expectStatus(page, 'completed');
+}

@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 import {
-  H, TARGETS, W, actAs, box, expectReadOnly, expectStatus, fill, fillRecipientFields, freshStart, input,
+  H, TARGETS, W, actAs, box, expectReadOnly, expectStatus, fill, fillRecipientFields, freshStart,
   newDocumentFromSample, openFirstRow, signDrawn, signTyped, todayLocal,
 } from './helpers';
 
@@ -76,7 +76,6 @@ test('golden path: manual layout', async ({ page }) => {
   await expect(box(page, 'Print Name', 'recipient')).toContainText('Bob Smith');
   await expect(box(page, 'Date', 'recipient')).toContainText(todayLocal());
   await expectReadOnly(page);
-  await expect(input(page, 'Email', 'recipient')).toHaveCount(await input(page, 'Email', 'recipient').count());
 
   await actAs(page, 'u_maria');
   await expect(page.getByTestId('document-row')).toHaveCount(0);
