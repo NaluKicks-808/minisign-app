@@ -76,7 +76,9 @@ Generated output I did not keep as it came:
 
 The full list is in `docs/ai-usage-log.md`.
 
-<!-- Evan: add your own example here -->
+When the build was done and every test passed, I didn't take that as proof it was good. I had it walk through the app as a first-time user and run Auto-prep on real government forms. That caught things the passing tests hadn't, like Reset demo data wiping everything on one click, and no way to place a field without a mouse, so I had those fixed.
+
+When the initial PRD came back, I chose to prioritize the UI to make sure that there was a clean seam.
 
 ## What's unfinished
 
