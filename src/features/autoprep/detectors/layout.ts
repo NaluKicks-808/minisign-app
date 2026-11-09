@@ -119,6 +119,41 @@ function covers(spans: Span[] | undefined, a: number, b: number): boolean {
   );
 }
 
+const sameEnd = (a: number, b: number) => Math.abs(a - b) <= POSITION_TOLERANCE * 1.5;
+
+/**
+ * Government-style forms leave a table's outer edges undrawn: its rows are full-width rules with
+ * only the inner column lines drawn. Where two successive rules end at the same place and a
+ * column line runs between them, that end is the row's edge. The column line is the evidence
+ * that this is a table, not a stack of signature lines with captions under them.
+ */
+function undrawnRowEdges(
+  horizontal: { at: number; spans: Span[] }[],
+  vertical: { at: number; spans: Span[] }[],
+): { at: number; span: Span }[] {
+  const edges: { at: number; span: Span }[] = [];
+  horizontal.forEach((upper, j) => {
+    for (const [left, right] of upper.spans) {
+      const lower = horizontal
+        .slice(j + 1)
+        .flatMap((line) =>
+          line.spans
+            .filter(([a, b]) => a < right && b > left)
+            .map((span) => ({ at: line.at, span })),
+        )[0];
+      if (!lower) continue;
+      const hasColumnLine = vertical.some(
+        (line) => line.at > left && line.at < right && covers(line.spans, upper.at, lower.at),
+      );
+      if (!hasColumnLine) continue;
+      const span: Span = [upper.at, lower.at];
+      if (sameEnd(left, lower.span[0])) edges.push({ at: left, span });
+      if (sameEnd(right, lower.span[1])) edges.push({ at: right, span });
+    }
+  });
+  return edges;
+}
+
 class DisjointSet {
   private readonly parent: number[];
   constructor(size: number) {
@@ -146,11 +181,13 @@ export function findCells(page: PageContent): Cell[] {
       .filter((r) => r.y2 - r.y1 <= POSITION_TOLERANCE && r.x2 > r.x1)
       .map((r) => ({ at: (r.y1 + r.y2) / 2, span: [r.x1, r.x2] as Span })),
   );
-  const vertical = ruledLines(
-    page.rules
-      .filter((r) => r.x2 - r.x1 <= POSITION_TOLERANCE && r.y2 > r.y1)
-      .map((r) => ({ at: (r.x1 + r.x2) / 2, span: [r.y1, r.y2] as Span })),
-  );
+  const drawnVertical = page.rules
+    .filter((r) => r.x2 - r.x1 <= POSITION_TOLERANCE && r.y2 > r.y1)
+    .map((r) => ({ at: (r.x1 + r.x2) / 2, span: [r.y1, r.y2] as Span }));
+  const vertical = ruledLines([
+    ...drawnVertical,
+    ...undrawnRowEdges(horizontal, ruledLines(drawnVertical)),
+  ]);
   const cols = vertical.length - 1;
   const rows = horizontal.length - 1;
   if (cols < 1 || rows < 1) return [];

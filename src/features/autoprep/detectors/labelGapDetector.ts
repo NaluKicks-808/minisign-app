@@ -27,6 +27,10 @@ type Rule = PageContent['rules'][number];
 
 const rightOf = (word: Word) => word.rect.x + word.rect.w;
 
+/** A caption names something, so "the following:" or "an EIN if:" is the end of a sentence. */
+const endsMidPhrase = (colonWord: string) =>
+  /^(?:if|and|or|of|the|to|for|by|with|that|in|on|at|a|an|following|below|are|is)[:]$/i.test(colonWord);
+
 function labelStart(words: Word[], colonAt: number, charWidth: number): number {
   let start = colonAt;
   while (start > 0) {
@@ -93,7 +97,7 @@ function candidatesOnLine(
     if (isBlank(word) || !word.text.endsWith(':') || word.text.length < 2) return;
     const start = labelStart(words, colonAt, charWidth);
     const label = words.slice(start, colonAt + 1);
-    if (label.length > MAX_LABEL_WORDS) return;
+    if (label.length > MAX_LABEL_WORDS || endsMidPhrase(word.text)) return;
 
     let after = colonAt + 1;
     while (words[after] && isBlank(words[after] as Word)) after += 1;
@@ -137,6 +141,7 @@ function candidatesOnLine(
       caption: text,
       captionRect: { x: first.rect.x, y: line.top, w: rightOf(word) - first.rect.x, h: height },
       tableId: null,
+      row: null,
       confidence,
       detector,
       evidence: `label "${text}" followed by ${found}`,

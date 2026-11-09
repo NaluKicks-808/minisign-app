@@ -61,7 +61,7 @@ const AXIS_TOLERANCE_PT = 0.25;
 /** Shorter strokes are tick marks and glyph-like decoration, not table lines. */
 const MIN_RULE_LENGTH_PT = 2;
 /** Many producers draw table lines as thin filled rectangles rather than strokes. */
-const MAX_FILLED_RULE_THICKNESS_PT = 1.5;
+const MAX_FILLED_RULE_THICKNESS_PT = 3;
 /** Near-white paint does not show on paper, so it cannot be a rule or a header band. */
 const MAX_VISIBLE_LUMA = 0.96;
 /** A fill this large is a page background, not a header band. */
