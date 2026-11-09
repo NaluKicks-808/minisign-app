@@ -1,0 +1,48 @@
+.box {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  padding-inline: 0.3em;
+  overflow: visible;
+  cursor: move;
+  touch-action: none;
+  user-select: none;
+}
+
+.box:hover {
+  background: var(--who-tint);
+}
+
+.box[data-selected='true'] {
+  background: var(--who-tint-strong);
+  outline: 2px solid var(--who);
+  outline-offset: 1px;
+}
+
+.typeName {
+  overflow: hidden;
+  color: var(--who-text);
+  font-size: 42cqh;
+  opacity: 0.75;
+  white-space: nowrap;
+}
+
+/* Centred on the exact corner, so the grab area is generous on the smallest boxes. */
+.handle {
+  position: absolute;
+  right: -6px;
+  bottom: -6px;
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--paper);
+  background: var(--who);
+  cursor: nwse-resize;
+  opacity: 0;
+}
+
+.box:hover .handle,
+.box:focus-visible .handle,
+.box[data-selected='true'] .handle {
+  opacity: 1;
+}
