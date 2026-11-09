@@ -1,0 +1,19 @@
+.editor {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--side-w);
+  align-items: stretch;
+  min-height: 100%;
+}
+
+.side {
+  position: sticky;
+  top: var(--header-h);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  align-self: start;
+  max-height: calc(100dvh - var(--header-h));
+  min-height: calc(100dvh - var(--header-h));
+  padding: var(--space-5) var(--space-4);
+  overflow-y: auto;
+}

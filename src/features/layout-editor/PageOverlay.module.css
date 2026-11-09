@@ -1,0 +1,13 @@
+.overlay {
+  position: absolute;
+  inset: 0;
+}
+
+.overlay[data-placing='true'] {
+  cursor: crosshair;
+}
+
+/* While a field is armed, every click belongs to the page, even over an existing box. */
+.overlay[data-placing='true'] * {
+  pointer-events: none !important;
+}

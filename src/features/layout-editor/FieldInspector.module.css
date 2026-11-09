@@ -1,0 +1,35 @@
+.section {
+  display: grid;
+  gap: var(--space-3);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--line);
+}
+
+.form {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.check {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  cursor: pointer;
+}
+
+.check input {
+  margin: 0;
+  accent-color: var(--blotter);
+}
+
+.delete {
+  justify-self: start;
+  margin-top: var(--space-2);
+}
+
+.empty {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: var(--text-sm);
+}
