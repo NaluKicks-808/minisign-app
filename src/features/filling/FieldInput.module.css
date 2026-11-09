@@ -105,7 +105,7 @@
   background: var(--who-tint);
   color: var(--who-text);
   font-family: var(--font-ui);
-  font-size: 34cqh;
+  font-size: min(34cqh, 1rem);
   font-weight: var(--weight-medium);
   white-space: nowrap;
   cursor: pointer;
@@ -178,7 +178,7 @@
   border: 1px dashed var(--who);
   background: var(--who-tint);
   color: var(--who-text);
-  font-size: 50cqh;
+  font-size: min(50cqh, 0.875rem);
   line-height: 1;
   white-space: nowrap;
 }

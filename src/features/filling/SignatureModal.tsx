@@ -4,6 +4,7 @@ import type { Field, SignatureValue } from '../../domain/types';
 import { validateValue } from '../../domain/validation';
 import { selectFieldValue } from '../../store/selectors';
 import { useAppStore } from '../../store/useAppStore';
+import { trimmedSignaturePng } from './trimSignature';
 import styles from './SignatureModal.module.css';
 
 type Tab = 'type' | 'draw';
@@ -46,7 +47,7 @@ function SignatureDialog({ field }: { field: Field }) {
     const value: SignatureValue =
       tab === 'type'
         ? typed
-        : { kind: 'drawn', pngDataUrl: canvas.current!.getTrimmedCanvas().toDataURL('image/png') };
+        : { kind: 'drawn', pngDataUrl: trimmedSignaturePng(canvas.current!.getCanvas()) };
     setSaving(true);
     await setValue(field.id, value);
     dialog.current?.close();
