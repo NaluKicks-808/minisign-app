@@ -11,6 +11,8 @@ export function RecipientPicker() {
   const recipientId = useAppStore((s) => s.activeBundle?.document.recipientId);
   const setRecipient = useAppStore((s) => s.setRecipient);
   const [email, setEmail] = useState('');
+  const [name, setName] = useState('');
+  const [nameMissing, setNameMissing] = useState(false);
   const [invalid, setInvalid] = useState(false);
 
   const others = users.filter((user) => user.id !== senderId);
@@ -29,8 +31,17 @@ export function RecipientPicker() {
       return;
     }
     setInvalid(false);
+    const known = users.some((user) => user.email.toLowerCase() === address.toLowerCase());
+    const fullName = name.trim();
+    if (!known && !fullName) {
+      // The name goes on the signer's name fields and cannot be edited at signing.
+      setNameMissing(true);
+      return;
+    }
+    setNameMissing(false);
     setEmail('');
-    void setRecipient({ email: address });
+    setName('');
+    void setRecipient(fullName ? { email: address, name: fullName } : { email: address });
   };
 
   return (
@@ -54,6 +65,17 @@ export function RecipientPicker() {
       <span className={styles.caption}>or</span>
       <form className={styles.email} onSubmit={onSubmit} noValidate>
         <input
+          aria-label="Recipient name"
+          aria-invalid={nameMissing}
+          className="input"
+          placeholder="Full name"
+          value={name}
+          onChange={(event) => {
+            setName(event.target.value);
+            setNameMissing(false);
+          }}
+        />
+        <input
           aria-label="Recipient email"
           aria-invalid={invalid}
           className="input"
@@ -72,6 +94,11 @@ export function RecipientPicker() {
       {invalid && (
         <p className={`error-text ${styles.error}`} role="alert">
           Enter a valid email address.
+        </p>
+      )}
+      {nameMissing && (
+        <p className={`error-text ${styles.error}`} role="alert">
+          Enter the recipient&apos;s full name.
         </p>
       )}
     </div>
