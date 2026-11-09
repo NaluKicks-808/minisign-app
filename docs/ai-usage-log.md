@@ -15,3 +15,7 @@ One entry each time the lead or the reviewer rejected or materially rewrote gene
 - **Signature.** Proposed: the library's `getTrimmedCanvas`; it threw under Vite. Done: a local `trimSignature.ts`.
 - **Auto-prep classification.** Proposed: signature keywords checked first; "Date signed" came out as a signature. Done: date checked first.
 - **Auto-prep underline search.** Proposed: stop at the text margin; it missed the right-column rule. Done: search to the page edge.
+
+## Reviewer
+
+- **Write-up.** Proposed by the lead: "All coordinate arithmetic lives in that module." The reviewer found the Auto-prep adapter divides by page size itself. Done: the sentence was corrected to say so.

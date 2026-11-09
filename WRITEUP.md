@@ -28,7 +28,7 @@ Source, layout and values are separate because they change on different schedule
 
 ```mermaid
 flowchart TD
-  UI["UI components<br/>src/features, src/components"] -->|selectors, actions| Store["Store (Zustand)<br/>src/store: UI state + cache"]
+  UI["UI components<br/>src/features"] -->|selectors, actions| Store["Store (Zustand)<br/>src/store: UI state + cache"]
   Store -->|commands| Services["Services, the bouncer<br/>src/services"]
   Services --> Domain["Domain, pure TS<br/>src/domain"]
   Services --> Repo["Repository interface<br/>src/data/repository.ts"]
@@ -42,7 +42,7 @@ flowchart TD
 
 ## Key decisions
 
-1. **Field positions as page fractions rather than PDF points.** A field stores its page and `{x, y, w, h}` from 0 to 1. Each box is placed with percentages inside a container the size of the page, so fields follow the page at any width with no resize code. Industry tools such as DocuSign store PDF points from the page origin. The two are the same idea, anchored to the page rather than the screen, and convert by dividing by the page size. Fractions make rendering trivial. Points become the better fit once values are stamped into a real PDF, and `toPdfPoints` in `src/domain/geometry.ts` already exists for that. All coordinate arithmetic lives in that module.
+1. **Field positions as page fractions rather than PDF points.** A field stores its page and `{x, y, w, h}` from 0 to 1. Each box is placed with percentages inside a container the size of the page, so fields follow the page at any width with no resize code. Industry tools such as DocuSign store PDF points from the page origin. The two are the same idea, anchored to the page rather than the screen, and convert by dividing by the page size. Fractions make rendering trivial. Points become the better fit once values are stamped into a real PDF, and `toPdfPoints` in `src/domain/geometry.ts` already exists for that. Layout code does its coordinate arithmetic in that module; the Auto-prep extraction adapter still does its own division by page size.
 
 2. **`localStorage` behind an async repository, rather than in-memory state or a mock API.** State survives a refresh, which a demo of a two-person flow needs, and a mock API would add a server without adding a decision. The seam is the point: every method is async and returns copies, as a network call would, so a real API is one new class and no screen changes. The cost is a quota of roughly 5 MB, which limits uploaded PDFs to 3 MB, and atomicity only within one tab.
 
@@ -50,7 +50,7 @@ flowchart TD
 
 4. **Zustand as a thin cache plus UI state, rather than Context or prop drilling.** Components read the current user, the active document and the selection through selectors. Props carry only local things, such as the field a box renders. The trade-off is one more dependency, and a store could tempt someone to treat it as the truth. Routing every write through services, then re-reading, closes that off.
 
-5. **An append-only, hash-chained audit log as the core record.** Every command appends exactly one event in the same save as the change, and each event's hash covers the previous hash. The repository has no method that edits or removes an event. The alternative, a plain activity list, could show history but could not show that history had been altered. The log is part of the core design, not the Part 2 feature: it is how the bouncer records every decision. Its limit is below, under what's unfinished.
+5. **An append-only, hash-chained audit log as the core record.** Every `DocumentService` command appends exactly one event in the same save as the change, and each event's hash covers the previous hash. Auto-prep's accept adds fields through those same commands, then records one more event of its own. The repository has no method that edits or removes an event. The alternative, a plain activity list, could show history but could not show that history had been altered. The log is part of the core design, not the Part 2 feature: it is how the bouncer records every decision. Its limit is below, under what's unfinished.
 
 ## My feature: Auto-prep
 
@@ -89,3 +89,15 @@ The full list is in `docs/ai-usage-log.md`.
 - Audit log limit: deleting the most recent event is not detectable from a bare hash chain. It would need the head hash stored elsewhere.
 - Saves are atomic within one tab only. Two tabs editing at once can overwrite each other.
 - Tested in Chromium only.
+
+Known bugs and gaps from independent review, none of which breaks the main sender and recipient flows:
+
+- Signature modal: after drawing, switching to Type and back to Draw clears the ink but leaves Apply enabled, so a blank drawn signature can be stored and counts as signed.
+- Signature modal: reopening a field that already holds a drawn signature opens a zero-size canvas, and Apply then fails with no message. The existing signature is unchanged.
+- A missing required signature shows in the summary beside Send or Finish, but not inline on the field.
+- The blocking-reasons list hides a non-field reason when that reason starts with a field's label, and a suggestion can be accepted with a blank label, which hides all of them.
+- Turning on "Fill in the signing date" keeps any date already typed, so the draft shows that date rather than "Fills in on signing".
+- Uploaded source documents are not scoped to the uploader, so every user can pick them on the New document screen.
+- Auto-prep's audit events are written outside the service's write queue. Overlapping direct service calls can fork the chain. The app's store runs commands one at a time, so the UI does not hit this.
+- Layering: `src/services/container.ts` imports from `src/features`, the layout editor imports Auto-prep directly, and `src/domain/geometry.ts` imports one React type.
+- Test coverage: `AutoPrepService` has no unit test of its guards or events, the Auto-prep upload e2e runs on a one-page PDF, and the invalid-value e2e checks only that "Email" and "Phone" are listed.
