@@ -5,6 +5,7 @@
 }
 
 .box {
+  container-type: size;
   --who: var(--recipient);
   --who-text: var(--recipient-deep);
   --who-tint: var(--recipient-tint);
@@ -51,11 +52,13 @@
   text-overflow: ellipsis;
 }
 
-/* The size container: value text inside is sized in cqh, so it follows the rendered field height. */
+/*
+ * cqh resolves against the nearest ancestor container, here .box, never against the element's own
+ * container-type. Value text inside inherits this, so it follows the rendered field height.
+ */
 .content {
   position: absolute;
   inset: 0;
-  container-type: size;
   font-size: 60cqh;
   line-height: 1.1;
 }

@@ -3,6 +3,7 @@ import type { Assignee, Field, FieldType } from '../../domain/types';
 import { selectSelectedField } from '../../store/selectors';
 import { useAppStore } from '../../store/useAppStore';
 import { FIELD_TYPES } from './fieldDefaults';
+import { useOptimisticValue } from './useOptimisticValue';
 import styles from './FieldInspector.module.css';
 
 /** Pause in typing before a label is saved. Each save is one audit event, so not per keystroke. */
@@ -65,10 +66,18 @@ function Details({ field }: { field: Field }) {
   const typeId = useId();
   const assigneeId = useId();
 
-  const onTypeChange = (event: ChangeEvent<HTMLSelectElement>) => {
-    const type = event.target.value as FieldType;
-    void updateField(field.id, type === 'date' ? { type } : { type, autoFillSigningDate: false });
-  };
+  const [type, setType] = useOptimisticValue(field.type, (next: FieldType) =>
+    updateField(field.id, next === 'date' ? { type: next } : { type: next, autoFillSigningDate: false }),
+  );
+  const [assignee, setAssignee] = useOptimisticValue(field.assignee, (next: Assignee) =>
+    updateField(field.id, { assignee: next }),
+  );
+  const [required, setRequired] = useOptimisticValue(field.required, (next: boolean) =>
+    updateField(field.id, { required: next }),
+  );
+  const [autoFill, setAutoFill] = useOptimisticValue(field.autoFillSigningDate, (next: boolean) =>
+    updateField(field.id, { autoFillSigningDate: next }),
+  );
 
   const onDelete = () => {
     selectField(null);
@@ -82,10 +91,15 @@ function Details({ field }: { field: Field }) {
         <label className="field-label" htmlFor={typeId}>
           Type
         </label>
-        <select id={typeId} className="select" value={field.type} onChange={onTypeChange}>
-          {FIELD_TYPES.map(({ type, name }) => (
-            <option key={type} value={type}>
-              {name}
+        <select
+          id={typeId}
+          className="select"
+          value={type}
+          onChange={(event) => setType(event.target.value as FieldType)}
+        >
+          {FIELD_TYPES.map((entry) => (
+            <option key={entry.type} value={entry.type}>
+              {entry.name}
             </option>
           ))}
         </select>
@@ -97,10 +111,8 @@ function Details({ field }: { field: Field }) {
         <select
           id={assigneeId}
           className="select"
-          value={field.assignee}
-          onChange={(event) =>
-            void updateField(field.id, { assignee: event.target.value as Assignee })
-          }
+          value={assignee}
+          onChange={(event) => setAssignee(event.target.value as Assignee)}
         >
           <option value="sender">Sender</option>
           <option value="recipient">Recipient</option>
@@ -109,19 +121,17 @@ function Details({ field }: { field: Field }) {
       <label className={styles.check}>
         <input
           type="checkbox"
-          checked={field.required}
-          onChange={(event) => void updateField(field.id, { required: event.target.checked })}
+          checked={required}
+          onChange={(event) => setRequired(event.target.checked)}
         />
         Required
       </label>
-      {field.type === 'date' && (
+      {type === 'date' && (
         <label className={styles.check}>
           <input
             type="checkbox"
-            checked={field.autoFillSigningDate}
-            onChange={(event) =>
-              void updateField(field.id, { autoFillSigningDate: event.target.checked })
-            }
+            checked={autoFill}
+            onChange={(event) => setAutoFill(event.target.checked)}
           />
           Fill in the signing date
         </label>

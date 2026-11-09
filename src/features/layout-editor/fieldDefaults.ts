@@ -6,7 +6,7 @@ export const FIELD_TYPES: { type: FieldType; name: string; hint: string; w: numb
   { type: 'email', name: 'Email', hint: '@', w: 0.26, h: 0.028 },
   { type: 'phone', name: 'Phone', hint: '#', w: 0.18, h: 0.028 },
   { type: 'date', name: 'Date', hint: '31', w: 0.14, h: 0.028 },
-  { type: 'signature', name: 'Signature', hint: '✒', w: 0.28, h: 0.055 },
+  { type: 'signature', name: 'Signature', hint: '×', w: 0.28, h: 0.055 },
   { type: 'signerName', name: 'Signer name', hint: 'Ab', w: 0.24, h: 0.028 },
 ];
 

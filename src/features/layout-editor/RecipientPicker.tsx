@@ -1,6 +1,7 @@
-import { useState, type ChangeEvent, type FormEvent } from 'react';
+import { useState, type FormEvent } from 'react';
 import { isValidEmail } from '../../domain/validation';
 import { useAppStore } from '../../store/useAppStore';
+import { useOptimisticValue } from './useOptimisticValue';
 import styles from './RecipientPicker.module.css';
 
 /** Pick another user, or send to an email address. */
@@ -12,14 +13,13 @@ export function RecipientPicker() {
   const [email, setEmail] = useState('');
   const [invalid, setInvalid] = useState(false);
 
-  if (!senderId) return null;
-
   const others = users.filter((user) => user.id !== senderId);
-  const selected = others.some((user) => user.id === recipientId) ? (recipientId ?? '') : '';
+  const [selected, select] = useOptimisticValue(
+    others.some((user) => user.id === recipientId) ? (recipientId ?? '') : '',
+    (userId: string) => setRecipient({ userId }),
+  );
 
-  const onSelect = (event: ChangeEvent<HTMLSelectElement>) => {
-    void setRecipient({ userId: event.target.value });
-  };
+  if (!senderId) return null;
 
   const onSubmit = (event: FormEvent) => {
     event.preventDefault();
@@ -36,7 +36,7 @@ export function RecipientPicker() {
   return (
     <div className={styles.picker}>
       <span className={styles.caption}>Send to</span>
-      <select aria-label="Recipient" className="select" value={selected} onChange={onSelect}>
+      <select aria-label="Recipient" className="select" value={selected} onChange={(event) => select(event.target.value)}>
         <option value="" disabled>
           Choose a person
         </option>
