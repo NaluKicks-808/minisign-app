@@ -76,8 +76,13 @@ function SignatureMark({ label, value }: { label: string; value: SignatureValue 
 
 function SignatureButton({ field, stored }: { field: Field; stored: SignatureValue | undefined }) {
   const openSignatureModal = useAppStore((s) => s.openSignatureModal);
+  const modalOpen = useAppStore((s) => s.modal?.fieldId === field.id);
+  const [touched, setTouched] = useState(false);
   const errorId = useId();
-  const message = stored ? validateValue('signature', stored, field.required) : null;
+  const message =
+    stored || (touched && !modalOpen)
+      ? validateValue('signature', stored, field.required)
+      : null;
 
   return (
     <>
@@ -88,7 +93,10 @@ function SignatureButton({ field, stored }: { field: Field; stored: SignatureVal
         aria-label={field.label}
         aria-invalid={message !== null}
         aria-describedby={message ? errorId : undefined}
-        onClick={() => openSignatureModal(field.id)}
+        onClick={() => {
+          setTouched(true);
+          openSignatureModal(field.id);
+        }}
       >
         {stored ? <SignatureMark label={field.label} value={stored} /> : withStar(field)}
       </button>
