@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 import {
-  H, TARGETS, W, actAs, box, expectReadOnly, expectStatus, fill, fillRecipientFields, freshStart,
-  newDocumentFromSample, openFirstRow, signDrawn, signTyped, todayLocal,
+  H, TARGETS, W, actAs, box, expectInvalidValueReason, expectReadOnly, expectSenderValues, expectStatus, fill,
+  fillRecipientFields, freshStart, newDocumentFromSample, openFirstRow, signDrawn, signTyped, todayLocal,
 } from './helpers';
 
 test('golden path: manual layout', async ({ page }) => {
@@ -60,14 +60,13 @@ test('golden path: manual layout', async ({ page }) => {
   await expect(page.getByTestId('document-row')).toContainText('Needs your action');
   await openFirstRow(page);
 
-  await expect(box(page, 'Print Name', 'sender')).toContainText('Dana Reyes');
-  await expect(box(page, 'Title', 'sender').locator('input:not([disabled]):not([readonly])')).toHaveCount(0);
+  await expectSenderValues(page, { name: 'Dana Reyes', title: 'Director', signature: 'Dana Reyes' });
 
   await fillRecipientFields(page, { Email: 'bob@nowhere', Phone: '12' });
   await signDrawn(page, 'Signature', 'recipient');
   await expect(page.getByTestId('finish-button')).toBeDisabled();
-  await expect(page.getByTestId('blocking-reasons')).toContainText('Email');
-  await expect(page.getByTestId('blocking-reasons')).toContainText('Phone');
+  await expectInvalidValueReason(page, 'Email');
+  await expectInvalidValueReason(page, 'Phone');
 
   await fill(page, 'Email', 'bob@acmetrucking.example', 'recipient');
   await fill(page, 'Phone', '512-555-0100', 'recipient');
