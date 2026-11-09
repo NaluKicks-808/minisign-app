@@ -1,0 +1,39 @@
+.summary {
+  flex: 1;
+  min-width: 0;
+}
+.heading {
+  display: block;
+  margin-bottom: var(--space-1);
+  color: var(--ink-soft);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+}
+.list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-2);
+  max-height: 84px;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+.reason {
+  padding: 1px var(--space-2);
+  color: var(--ink);
+  font-size: var(--text-sm);
+}
+.issue {
+  padding: 1px var(--space-2);
+  border: 1px solid var(--danger);
+  border-radius: var(--radius-control);
+  background: var(--danger-tint);
+  color: var(--danger);
+  font: inherit;
+  font-size: var(--text-sm);
+  cursor: pointer;
+}
+.issue:hover {
+  background: var(--paper);
+}

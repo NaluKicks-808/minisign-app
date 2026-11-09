@@ -1,0 +1,30 @@
+.shell {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+.content {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+.error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-2) var(--space-5);
+  border-bottom: 1px solid var(--danger);
+  background: var(--danger-tint);
+  color: var(--danger);
+  font-weight: var(--weight-medium);
+}
+.dismiss {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}

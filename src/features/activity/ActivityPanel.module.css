@@ -1,0 +1,62 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+}
+.top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+.title {
+  font-size: var(--text-md);
+}
+.intact,
+.altered {
+  padding: 1px var(--space-2);
+  border-radius: var(--radius-control);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+}
+.intact {
+  background: var(--ok-tint);
+  color: var(--ok);
+}
+.altered {
+  background: var(--danger-tint);
+  color: var(--danger);
+}
+.events {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  font-size: var(--text-sm);
+  list-style: none;
+}
+.event,
+.broken {
+  display: grid;
+  grid-template-columns: 2.25em minmax(0, 1fr);
+  gap: var(--space-1);
+  padding: var(--space-2) 0;
+  border-top: 1px solid var(--line);
+}
+.broken {
+  background: var(--danger-tint);
+  color: var(--danger);
+}
+.seq {
+  color: var(--ink-faint);
+  font-variant-numeric: tabular-nums;
+}
+.broken .seq {
+  color: inherit;
+}
+.tamper {
+  align-self: flex-start;
+  font-size: var(--text-sm);
+}

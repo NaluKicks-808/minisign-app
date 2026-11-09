@@ -1,0 +1,120 @@
+.screen {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--side-w);
+  height: 100%;
+}
+.main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  height: 100%;
+  overflow: auto;
+  scroll-padding-bottom: 120px;
+}
+.side {
+  height: 100%;
+  overflow: auto;
+}
+.heading {
+  padding: var(--space-4) var(--space-5) var(--space-3);
+}
+.back {
+  color: var(--ink-soft);
+  font-size: var(--text-sm);
+}
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-1);
+}
+.title {
+  font-size: var(--text-lg);
+}
+.tabs {
+  display: flex;
+  flex: none;
+  gap: var(--space-4);
+  padding: 0 var(--space-5);
+  border-bottom: 1px solid var(--line-strong);
+}
+.tab {
+  margin-bottom: -1px;
+  padding: var(--space-2) var(--space-1);
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: none;
+  color: var(--ink-soft);
+  font: inherit;
+  font-weight: var(--weight-medium);
+  cursor: pointer;
+}
+.tab[aria-selected='true'] {
+  border-bottom-color: var(--blotter);
+  color: var(--ink);
+}
+.pages {
+  flex: 1 0 auto;
+  padding: var(--space-5);
+}
+.dock {
+  position: sticky;
+  bottom: 0;
+  z-index: 20;
+  display: flex;
+  flex: none;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--space-3) var(--space-5);
+  padding: var(--space-3) var(--space-5);
+  border-top: 1px solid var(--line-strong);
+  background: var(--panel);
+}
+.banner {
+  flex: none;
+  margin: 0 var(--space-5);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-control);
+  font-weight: var(--weight-medium);
+}
+.sent {
+  background: var(--status-sent-tint);
+  color: var(--status-sent);
+}
+.completed {
+  background: var(--status-completed-tint);
+  color: var(--status-completed);
+}
+.unavailable {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+  max-width: 560px;
+  margin: var(--space-7) auto;
+  padding: var(--space-6);
+  background: var(--paper);
+  box-shadow: var(--shadow-paper);
+}
+.unavailable p {
+  margin: 0;
+  color: var(--ink-soft);
+}
+.unavailable a {
+  text-decoration: none;
+}
+@media (max-width: 900px) {
+  .screen {
+    display: block;
+    height: auto;
+  }
+  .main,
+  .side {
+    height: auto;
+    overflow: visible;
+  }
+  .side {
+    border-top: 1px solid var(--line);
+    border-left: 0;
+  }
+}
