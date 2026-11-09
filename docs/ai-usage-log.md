@@ -20,7 +20,7 @@ One entry each time the lead or the reviewer rejected or materially rewrote gene
 
 - **Write-up.** Proposed by the lead: "All coordinate arithmetic lives in that module." The reviewer found the Auto-prep adapter divides by page size itself. Done: the sentence was corrected to say so.
 - **Recipient name.** Generated: a recipient added by email took the part before the @ as their name, and the signer-name field then stamped that string. Done: the picker asks for the recipient's full name.
-- **Audit chain.** Generated: a bare hash chain, described as tamper-evident. A probe showed deleting the newest event went unnoticed. Done: each document stores its head sequence and hash, and verification compares them.
+- **Audit chain.** Generated: a bare hash chain, which cannot show that its newest event was deleted. Done: each document stores its head sequence and hash, and verification compares them.
 - **Blank drawn signature.** Generated: switching to Type and back cleared the ink but left Apply enabled. Done: the ink state resets with the tab.
 
 ## Walkthrough
